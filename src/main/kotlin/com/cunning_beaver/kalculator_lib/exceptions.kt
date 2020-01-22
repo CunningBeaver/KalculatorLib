@@ -1,10 +1,10 @@
 package com.cunning_beaver.kalculator_lib
 
-open class KalculatorException(description: String = "") : Exception(description)
+open class KalculatorException(message: String = "") : Exception()
 
-class ParseException(description: String = "") : KalculatorException(description)
+class ParseException(message: String = "") : KalculatorException(message)
 
-class OrderException(description: String = "") : KalculatorException(description)
+class OrderException(message: String = "") : KalculatorException(message)
 
-class MathException(description: String = "") : KalculatorException(description)
+class MathException(message: String = "") : KalculatorException(message)
 
