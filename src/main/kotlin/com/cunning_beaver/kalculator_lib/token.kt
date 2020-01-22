@@ -45,7 +45,7 @@ data class NumberToken(val value: Double) : Token(), Operand {
     operator fun plus(v: NumberToken) = NumberToken(value + v.value)
     operator fun minus(v: NumberToken) = NumberToken(value - v.value)
     operator fun times(v: NumberToken) = NumberToken(value * v.value)
-    operator fun div(v: NumberToken) = NumberToken(value * v.value)
+    operator fun div(v: NumberToken) = NumberToken(value / v.value)
     override fun toNumberList() = NumberList(arrayOf(this))
 }
 
