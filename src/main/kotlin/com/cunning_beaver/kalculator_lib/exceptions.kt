@@ -1,7 +1,7 @@
 package com.cunning_beaver.kalculator_lib
 
 
-open class KalculatorException(message: String = "") : Exception()
+open class KalculatorException(message: String = "") : Exception(message)
 
 class ParseException(message: String = "") : KalculatorException(message)
 
