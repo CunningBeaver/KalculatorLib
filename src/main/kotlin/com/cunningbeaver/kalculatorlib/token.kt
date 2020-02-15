@@ -1,4 +1,4 @@
-package com.cunning_beaver.kalculator_lib
+package com.cunningbeaver.kalculatorlib
 
 
 interface Operand {
@@ -9,7 +9,11 @@ enum class TokenTypes {
     NUMBER, OPEN_BRACKET, CLOSE_BRACKET, FUNCTION, OPERATOR;
 
     companion object {
-        private val operandBegins = setOf(NUMBER, OPEN_BRACKET, FUNCTION)
+        private val operandBegins = setOf(
+            NUMBER,
+            OPEN_BRACKET,
+            FUNCTION
+        )
         private val validOperators = getValidBinaryOperators() + getValidUnaryOperators()
         private val validChars = ('a'..'z') + ('A'..'Z')
         private val validNumbers = '0'..'9'
@@ -31,7 +35,9 @@ enum class TokenTypes {
 sealed class Token {
     open val priority = 0
     override fun toString() = "${this::class.simpleName}()"
-    open operator fun compareTo(other: Token): Int = throw KalculatorException("you can't compare $this and $other")
+    open operator fun compareTo(other: Token): Int = throw KalculatorException(
+        "you can't compare $this and $other"
+    )
 }
 
 class StartToken : Token() {
@@ -40,16 +46,22 @@ class StartToken : Token() {
     override fun hashCode() = value.hashCode()
 }
 
-data class NumberToken(val value: Double) : Token(), Operand {
+data class NumberToken(val value: Double) : Token(),
+    Operand {
     operator fun unaryMinus() = NumberToken(-value)
-    operator fun plus(v: NumberToken) = NumberToken(value + v.value)
-    operator fun minus(v: NumberToken) = NumberToken(value - v.value)
-    operator fun times(v: NumberToken) = NumberToken(value * v.value)
-    operator fun div(v: NumberToken) = NumberToken(value / v.value)
+    operator fun plus(v: NumberToken) =
+        NumberToken(value + v.value)
+    operator fun minus(v: NumberToken) =
+        NumberToken(value - v.value)
+    operator fun times(v: NumberToken) =
+        NumberToken(value * v.value)
+    operator fun div(v: NumberToken) =
+        NumberToken(value / v.value)
     override fun toNumberList() = NumberList(arrayOf(this))
 }
 
-data class NumberList(val numbers: Array<NumberToken>) : Token(), Operand {
+data class NumberList(val numbers: Array<NumberToken>) : Token(),
+    Operand {
     override fun equals(other: Any?): Boolean {
         if (other !is NumberList) return false
         return this === other || numbers.contentEquals(other.numbers)
@@ -88,7 +100,8 @@ data class FunctionToken(val value: String) : Token() {
 class GrouperToken : Token() {
     private val value = ','
     override val priority = 1
-    operator fun invoke(a: Operand, b: Operand) = NumberList(a.toNumberList().numbers + b.toNumberList().numbers)
+    operator fun invoke(a: Operand, b: Operand) =
+        NumberList(a.toNumberList().numbers + b.toNumberList().numbers)
     override fun equals(other: Any?) = other is GrouperToken
     override fun hashCode() = value.hashCode()
 

@@ -1,4 +1,4 @@
-package com.cunning_beaver.kalculator_lib
+package com.cunningbeaver.kalculatorlib
 
 import java.util.*
 
@@ -69,11 +69,18 @@ private val handlers = hashMapOf<TokenTypes, (ParserState, Char, Char?) -> Unit>
 )
 
 private fun isNextAFunctionToken(next: Char?): Boolean {
-    return next != null && TokenTypes.getTypeByFirstLetter(next) in arrayOf(TokenTypes.FUNCTION, TokenTypes.NUMBER)
+    return next != null && TokenTypes.getTypeByFirstLetter(
+        next
+    ) in arrayOf(
+        TokenTypes.FUNCTION,
+        TokenTypes.NUMBER
+    )
 }
 
 private fun isNextANumberToken(next: Char?): Boolean {
-    return next != null && (TokenTypes.getTypeByFirstLetter(next) == TokenTypes.NUMBER || next == '.')
+    return next != null && (TokenTypes.getTypeByFirstLetter(
+        next
+    ) == TokenTypes.NUMBER || next == '.')
 }
 
 fun parseToTokens(input: String): Array<Token> {
@@ -85,7 +92,8 @@ fun parseToTokens(input: String): Array<Token> {
         val current: Char = str[i]
         val next: Char? = if (i < str.length - 1) str[i + 1] else null
         if (state.typeOfCurrentToken == null)
-            state.typeOfCurrentToken = TokenTypes.getTypeByFirstLetter(current)
+            state.typeOfCurrentToken =
+                TokenTypes.getTypeByFirstLetter(current)
         handlers[state.typeOfCurrentToken!!]?.invoke(state, current, next)
     }
     state.tokens.add(EndToken())

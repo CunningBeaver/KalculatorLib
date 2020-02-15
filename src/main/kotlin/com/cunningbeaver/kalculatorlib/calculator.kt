@@ -1,4 +1,4 @@
-package com.cunning_beaver.kalculator_lib
+package com.cunningbeaver.kalculatorlib
 
 import java.util.*
 

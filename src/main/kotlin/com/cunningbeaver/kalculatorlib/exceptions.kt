@@ -1,4 +1,4 @@
-package com.cunning_beaver.kalculator_lib
+package com.cunningbeaver.kalculatorlib
 
 
 open class KalculatorException(message: String = "") : Exception(message)

@@ -1,4 +1,4 @@
-package com.cunning_beaver.kalculator_lib
+package com.cunningbeaver.kalculatorlib
 
 import java.util.*
 
@@ -135,7 +135,9 @@ private fun getCommand(current: Token, lastInStack: Token?)
         is NumberToken -> SortCommands.TO_RESULT
         is OpenBracketToken -> SortCommands.TO_INNER
         is CloseBracketToken -> when (lastInStack) {
-            is StartToken -> throw OrderException("Unexpected token $current")
+            is StartToken -> throw OrderException(
+                "Unexpected token $current"
+            )
             is BinaryOperatorToken, is GrouperToken -> SortCommands.LAST_INNER_TO_RESULT
             is UnaryOperatorToken, is FunctionToken -> SortCommands.LAST_INNER_TO_RESULT
             is OpenBracketToken -> SortCommands.REMOVE_PAIRS
@@ -167,5 +169,9 @@ private fun getFunction(command: SortCommands): (SorterState, Token) -> Unit
     }
 
 fun main() {
-    sortTokens(parseToTokens("-123+123"))
+    sortTokens(
+        parseToTokens(
+            "-123+123"
+        )
+    )
 }
