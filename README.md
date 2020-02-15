@@ -9,6 +9,8 @@ See https://jitpack.io/
 ## Using
 Only one function is required to working
 ```kotlin
+package com.cunning_beaver.kalculator_lib
+
 fun calculate(expression: String): Double
 ```
 You can input a common math expressions to it:
