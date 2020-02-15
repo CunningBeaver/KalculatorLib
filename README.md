@@ -1,4 +1,4 @@
-#KalculatorLib
+# KalculatorLib
 
 KalculatorLib (not a typo) is a calculator library written in Kotlin
 language, based on the Polish inverse notation algorithm.
