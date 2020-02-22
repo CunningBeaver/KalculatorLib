@@ -7,17 +7,26 @@ private enum class SortCommands {
     TO_RESULT, TO_INNER, LAST_INNER_TO_RESULT, REMOVE_PAIRS, END
 }
 
-
+/**
+ * keeps state of current sorting process
+ */
 private class SorterState {
+    // the reverse polish notation needs a two stacks
     private val resultStack: Stack<Token> = Stack()
     val innerStack: Stack<Token> = Stack()
 
     private var numbersCount: Int = 0
     private var binaryOperatorsCount: Int = 0
     var isOperand = true
+
+    // you cannot get the result until completion and cannot set new values after completion
     private var completeFlag: Boolean = false
-    private var invalidExpression = false
-    var i : Int = 0
+    fun isComplete() = completeFlag
+    fun complete() {
+        completeFlag = true
+    }
+
+    var index: Int = 0
     val result: Array<Token>
         get() {
             if (!completeFlag)
@@ -26,13 +35,7 @@ private class SorterState {
                 throw OrderException("The number of operators does not match the number of operands")
             return resultStack.toArray(arrayOf())
         }
-    fun isComplete() = completeFlag
-    fun complete() {
-        completeFlag = true
-    }
-    fun setInvalid() {
-        invalidExpression= true
-    }
+
     fun pushToResult(token: Token) {
         if (completeFlag)
             throw OrderException("got the completed state")
@@ -54,24 +57,29 @@ private class SorterState {
             }
             else -> throw KalculatorException("forbidden token $token")
         }
-
     }
 }
 
+/**
+ * main function of this file: sorts a [tokens][Token] to reverse polish notation
+ * @param tokens [Array] of [tokens][Token] from [parseToTokens] function
+ * @return sorted [Array] of [tokens][Token]
+ */
 fun sortTokens(tokens: Array<Token>): Array<Token> {
     val state = SorterState()
 
+    // checks if there is a StartToken and an EndToken
     if (tokens.first() !is StartToken)
         throw OrderException("first token is not a StartToken")
     if (tokens.last() !is EndToken)
         throw OrderException("last token is not a EndToken")
 
     state.innerStack.push(tokens.first())
-    ++state.i
+    ++state.index
 
     var previous: Token? = null
     while (!state.isComplete()) {
-        val token = tokens[state.i]
+        val token = tokens[state.index]
         val lastInStack = if (state.innerStack.empty()) null else state.innerStack.last()
         val command = getCommand(token, lastInStack)
         val func = getFunction(command)
@@ -114,8 +122,11 @@ private fun checkOrder(state: SorterState, current: Token) {
     }
 }
 
-private fun getCommand(current: Token, lastInStack: Token?)
-    = when (current) {
+/**
+ * table of relationships between [tokens][Token]
+ */
+private fun getCommand(current: Token, lastInStack: Token?) =
+    when (current) {
         is StartToken -> SortCommands.TO_INNER
         is EndToken -> when (lastInStack) {
             is StartToken -> SortCommands.END
@@ -146,32 +157,38 @@ private fun getCommand(current: Token, lastInStack: Token?)
         else -> throw OrderException("Unexpected token $current")
     }
 
-private fun getFunction(command: SortCommands): (SorterState, Token) -> Unit
-    = when (command) {
+/**
+ * gives functions with different actions depending on the received [command][SortCommands]
+ * @param [command][SortCommands]
+ * @return lambda that takes [SorterState] and [Token] then makes action
+ */
+private fun getFunction(command: SortCommands): (SorterState, Token) -> Unit =
+    when (command) {
         SortCommands.TO_RESULT -> { state, token ->
+            // just pushes token to result
             state.pushToResult(token)
-            ++state.i
+            ++state.index
         }
+
         SortCommands.TO_INNER -> { state, token ->
+            // just pushes token to inner stack
             state.innerStack.push(token)
-            ++state.i
+            ++state.index
         }
+
         SortCommands.LAST_INNER_TO_RESULT -> { state, _ ->
+            // pops last token from inner stack and pushes to result stack
             state.pushToResult(state.innerStack.pop())
         }
+
         SortCommands.REMOVE_PAIRS -> { state, _ ->
+            // removes last token from stack and ignores current token
             state.innerStack.pop()
-            ++state.i
+            ++state.index
         }
+
         SortCommands.END -> { state, _ ->
+            // completes the process
             state.complete()
         }
     }
-
-fun main() {
-    sortTokens(
-        parseToTokens(
-            "-123+123"
-        )
-    )
-}

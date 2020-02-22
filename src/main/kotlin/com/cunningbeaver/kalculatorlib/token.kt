@@ -5,16 +5,15 @@ interface Operand {
     fun toNumberList(): NumberList
 }
 
+/**
+ * information about tokens and characters
+ */
 enum class TokenTypes {
     NUMBER, OPEN_BRACKET, CLOSE_BRACKET, FUNCTION, OPERATOR;
 
     companion object {
-        private val operandBegins = setOf(
-            NUMBER,
-            OPEN_BRACKET,
-            FUNCTION
-        )
-        private val validOperators = getValidBinaryOperators() + getValidUnaryOperators()
+        private val operandBegins = setOf(NUMBER, OPEN_BRACKET, FUNCTION)
+        private val validOperators = BinaryOperatorsData.validOperators + UnaryOperatorsData.validOperators
         private val validChars = ('a'..'z') + ('A'..'Z')
         private val validNumbers = '0'..'9'
 
@@ -32,6 +31,7 @@ enum class TokenTypes {
     }
 }
 
+
 sealed class Token {
     open val priority = 0
     override fun toString() = "${this::class.simpleName}()"
@@ -40,25 +40,22 @@ sealed class Token {
     )
 }
 
+
 class StartToken : Token() {
-    val value = 'S'
     override fun equals(other: Any?) = other is StartToken
-    override fun hashCode() = value.hashCode()
+    override fun hashCode() = javaClass.hashCode()
 }
 
-data class NumberToken(val value: Double) : Token(),
-    Operand {
+
+data class NumberToken(val value: Double) : Token(), Operand {
     operator fun unaryMinus() = NumberToken(-value)
-    operator fun plus(v: NumberToken) =
-        NumberToken(value + v.value)
-    operator fun minus(v: NumberToken) =
-        NumberToken(value - v.value)
-    operator fun times(v: NumberToken) =
-        NumberToken(value * v.value)
-    operator fun div(v: NumberToken) =
-        NumberToken(value / v.value)
+    operator fun plus(v: NumberToken) = NumberToken(value + v.value)
+    operator fun minus(v: NumberToken) = NumberToken(value - v.value)
+    operator fun times(v: NumberToken) = NumberToken(value * v.value)
+    operator fun div(v: NumberToken) = NumberToken(value / v.value)
     override fun toNumberList() = NumberList(arrayOf(this))
 }
+
 
 data class NumberList(val numbers: Array<NumberToken>) : Token(),
     Operand {
@@ -70,25 +67,26 @@ data class NumberList(val numbers: Array<NumberToken>) : Token(),
     override fun toNumberList() = this
 }
 
+
 data class BinaryOperatorToken(val value: Char) : Token() {
-    override val priority = getBinaryOperatorPriority(value)
-    private val function = getBinaryOperatorFunction(value)
+    override val priority = BinaryOperatorsData.getPriority(value)
+    private val function = BinaryOperatorsData.getFunction(value)
+
     operator fun invoke(a: NumberToken, b: NumberToken) = function(a, b)
-    override operator fun compareTo(other: Token)
-        = if (other is BinaryOperatorToken || other is GrouperToken) priority - other.priority
-          else throw OrderException("unexpected operator $other")
-
-
+    override operator fun compareTo(other: Token) =
+        if (other is BinaryOperatorToken || other is GrouperToken) priority - other.priority
+        else throw OrderException("unexpected operator $other")
 }
 
 data class UnaryOperatorToken(val value: Char) : Token() {
-    private val function = getUnaryOperatorFunction(value)
+    private val function = UnaryOperatorsData.getFunction (value)
+
     operator fun invoke(num: NumberToken) = function(num)
 }
 
 data class FunctionToken(val value: String) : Token() {
-    private val function = getFunctionOfFunctionToken(value)
-    private val argsLength = getArgsLengthOgFunctions(value)
+    private val function = FunctionsData.getFunction(value)
+    private val argsLength = FunctionsData.getArgsLengthOfFunction(value)
 
     operator fun invoke(numbers: NumberList): NumberToken {
         if (argsLength != -1 && argsLength != numbers.numbers.size)
